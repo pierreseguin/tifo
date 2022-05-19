@@ -1,42 +1,37 @@
 #include "../includes/image.hh"
 
-Image Image::LSBR(const bytes &msg, int n_bits) const
+Image Image::LSBR(const Message &msg, int n_bits) const
 {
     Image hidden = Image(*this);
-    if (hidden.size < (msg.size() * 8) / n_bits + 1)
-        throw std::invalid_argument("Message is too large for the media");
 
-    int lsb_mask = 0b11111111 >> (8 - n_bits);
-    int msb_mask = 0b11111111 << n_bits;
-    for (int bit = 0; bit < msg.size() * 8 + n_bits; bit += n_bits)
+    bytes keep_mask(pixels.size());
+    bytes leave_mask(pixels.size());
+    leave_mask = ~leave_mask;
+    for (int bit = 0; bit < n_bits; bit++)
     {
-        int hid_pos = bit / n_bits;
-        int msg_pos = bit / 8;
-        int remaining = bit % 8;
-        int to_write = msg[msg_pos] >> (8 - remaining);
+        keep_mask[bit] = 1;
+        keep_mask[7 - bit] = 0;
+    }
 
-        int additional_shift = n_bits - remaining;
-        if (additional_shift > 0)
-        {
-            to_write <<= additional_shift;
-            if (msg_pos + 1 < msg.size())
-                to_write |= msg[msg_pos + 1] >> (8 - additional_shift);
-        }
-
-        hidden[hid_pos] &= msb_mask;
-        hidden[hid_pos] |= to_write & lsb_mask;
+    bytes msg_content = msg.content;
+    msg_content.resize(pixels.size());
+    for (int i = 0; i < msg.payload; i++)
+    {
+        bytes lsb = keep_mask & msg_content;
+        bytes msb = leave_mask & hidden.pixels;
+        hidden.pixels = msb | lsb >> (i * (8 - n_bits) + 8);
     }
     return hidden;
 }
 
-Image Image::LSBR_recover(int n_bits, int payload) const
+/*Image Image::LSBR_recover(int n_bits, int payload) const
 {
     Image msg = Image(*this);
     for (int i = 0; i < size; i++)
         msg[i] <<= (8 - n_bits);
 
     return msg;
-}
+}*/
 
 bool Image::chi_test() const
 {

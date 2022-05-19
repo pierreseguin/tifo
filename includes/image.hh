@@ -2,9 +2,9 @@
 
 #include <algorithm>
 #include <boost/dynamic_bitset.hpp>
+#include <boost/dynamic_bitset/dynamic_bitset.hpp>
 #include <cmath>
 #include <cstdint>
-#include <fstream>
 #include <functional>
 #include <iostream>
 #include <iterator>
@@ -13,16 +13,16 @@
 #include <string>
 #include <vector>
 
+#include "message.hh"
+
 typedef unsigned char px;
-typedef boost::px_buffer;
-typedef std::vector<uint8_t> bytes;
+typedef boost::dynamic_bitset<px> px_buffer;
 
 class Image
 {
 public:
     static const int COLOR_RGB = 1;
     static const int GRAYSCALE = 2;
-    static const int TXT_IMAGE = 3;
 
 public:
     Image(const std::string &filename, int mode);
@@ -32,21 +32,14 @@ public:
 
     // Utils
 
+    px get_px(int index) const;
+    void set_px(px value, int index);
     void print_chars() const;
-    void for_each(std::function<px(px)> func);
-    px &operator[](int index)
-    {
-        return pixels[index];
-    }
-    px operator[](int index) const
-    {
-        return pixels[index];
-    }
 
     // Steganography methods
 
-    Image LSBR(const bytes &msg, int n_bits) const;
-    text LSBR_recover(int n_bits) const;
+    Image LSBR(const Message &msg, int n_bits) const;
+    // bytes LSBR_recover(int n_bits) const;
     bool chi_test() const;
 
 public:
