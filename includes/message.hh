@@ -1,15 +1,30 @@
 #pragma once
-#include <boost/dynamic_bitset.hpp>
-#include <boost/dynamic_bitset/dynamic_bitset.hpp>
 #include <fstream>
+#include <iostream>
 #include <string>
+#include <vector>
 
-typedef boost::dynamic_bitset<unsigned char> bytes;
+typedef unsigned char byte;
+typedef std::vector<byte> bytes;
 
 class Message
 {
 public:
     Message(const std::string &filename);
+    Message(int payload);
+    Message(int payload, byte value);
+    void save(const std::string &filename);
+
+    // Utils
+
+    byte &operator[](int index)
+    {
+        return content[index];
+    }
+    byte operator[](int index) const
+    {
+        return content[index];
+    }
 
 public:
     int payload;

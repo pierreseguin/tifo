@@ -1,8 +1,6 @@
 #pragma once
 
 #include <algorithm>
-#include <boost/dynamic_bitset.hpp>
-#include <boost/dynamic_bitset/dynamic_bitset.hpp>
 #include <cmath>
 #include <cstdint>
 #include <functional>
@@ -16,7 +14,7 @@
 #include "message.hh"
 
 typedef unsigned char px;
-typedef boost::dynamic_bitset<px> px_buffer;
+typedef std::vector<px> px_buffer;
 
 class Image
 {
@@ -32,15 +30,21 @@ public:
 
     // Utils
 
-    px get_px(int index) const;
-    void set_px(px value, int index);
     void print_chars() const;
+    px &operator[](int index)
+    {
+        return pixels[index];
+    }
+    px operator[](int index) const
+    {
+        return pixels[index];
+    }
 
     // Steganography methods
 
     Image LSBR(const Message &msg, int n_bits) const;
-    // bytes LSBR_recover(int n_bits) const;
-    bool chi_test() const;
+    Message LSBR_recover(int n_bits, int payload) const;
+    bool chi_test(int n_bits, int payload) const;
 
 public:
     int width;
