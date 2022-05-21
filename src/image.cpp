@@ -1,4 +1,5 @@
 #include "../includes/image.hh"
+
 #include "../includes/stb_image.h"
 #include "../includes/stb_image_write.h"
 
@@ -38,16 +39,7 @@ Image::Image(int width, int height, unsigned char *bytes, int mode)
     }
 }
 
-Image::Image(const Image &img)
-{
-    width = img.width;
-    height = img.height;
-    size = img.size;
-    mode = img.mode;
-    pixels = px_buffer(img.pixels);
-}
-
-void Image::save(const std::string &filename)
+void Image::save(const std::string &filename, int n_lsbs)
 {
     uint8_t *bytes;
     if (mode == COLOR_RGB)
@@ -55,18 +47,23 @@ void Image::save(const std::string &filename)
         bytes = new uint8_t[size];
 
         for (int i = 0; i < size; i++)
-            bytes[i] = pixels[i];
+            bytes[i] = pixels[i] << (8 - n_lsbs);
     }
     else if (mode == GRAYSCALE)
     {
         bytes = new uint8_t[size * 3];
 
         for (int i = 0; i < size * 3; i++)
-            bytes[i] = pixels[i / 3];
+            bytes[i] = pixels[i / 3] << (8 - n_lsbs);
     }
 
     stbi_write_png(filename.c_str(), width, height, 3, bytes, 3 * width);
     delete[] bytes;
+}
+
+void Image::save(const std::string &filename)
+{
+    save(filename, 8);
 }
 
 void Image::print_chars() const

@@ -8,7 +8,9 @@
 #include <iterator>
 #include <memory>
 #include <stdexcept>
+#include <stdlib.h>
 #include <string>
+#include <time.h>
 #include <vector>
 
 #include "message.hh"
@@ -23,9 +25,22 @@ public:
     static const int GRAYSCALE = 2;
 
 public:
+    Image(int width, int height, px_buffer pixels, int mode)
+        : width(width)
+        , height(height)
+        , size(pixels.size())
+        , pixels(pixels)
+        , mode(mode){};
+    Image(int width, int height, int mode)
+        : Image(width, height,
+                px_buffer(width * height * (2 * (mode == COLOR_RGB) + 1)),
+                mode){};
+    Image(const Image &img)
+        : Image(img.width, img.height, img.pixels, img.mode){};
+
     Image(const std::string &filename, int mode);
     Image(int width, int height, unsigned char *pixels, int mode);
-    Image(const Image &img);
+    void save(const std::string &filename, int n_lsbs);
     void save(const std::string &filename);
 
     // Utils
@@ -42,9 +57,24 @@ public:
 
     // Steganography methods
 
+    // LSB replacement
     Image LSBR(const Message &msg, int n_bits) const;
     Message LSBR_recover(int n_bits, int payload) const;
     bool chi_test(int n_bits, int payload) const;
+
+    // LSB matching
+    Image LSBM(const Message &msg) const;
+    Message LSBM_recover(int payload) const;
+
+    // Jsteg
+    std::vector<int> compute_dct() const;
+    static Image compute_idct(const std::vector<int> &dct, int width,
+                              int height, int mode);
+    Image Jsteg(const Message &msg) const;
+
+private:
+    int compute_dct_coef(int x, int y) const;
+    px compute_idct_px(const std::vector<int> &dct, int x, int y);
 
 public:
     int width;

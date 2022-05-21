@@ -2,5 +2,11 @@
 #include <string>
 #include <vector>
 
+#include "message.hh"
+
 std::string to_binary(char c);
 std::string to_binary(const std::vector<unsigned char> &vec);
+
+template <typename T>
+std::vector<T> LSBR(const std::vector<T> &media, const Message &msg,
+                    int n_bits);
