@@ -19,8 +19,7 @@ Image::Image(int width, int height, unsigned char *bytes, int mode)
 
     if (mode == COLOR_RGB)
     {
-        int nb_channels = 1 + 2 * (mode == COLOR_RGB);
-        size = width * height * nb_channels;
+        size = width * height * 3;
         pixels = px_buffer(size);
 
         for (int i = 0; i < size; i++)

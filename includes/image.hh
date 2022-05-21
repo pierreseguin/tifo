@@ -17,6 +17,9 @@
 
 typedef unsigned char px;
 typedef std::vector<px> px_buffer;
+typedef std::vector<int> dct_coefs;
+
+class JstegImage;
 
 class Image
 {
@@ -25,6 +28,7 @@ public:
     static const int GRAYSCALE = 2;
 
 public:
+    Image(){};
     Image(int width, int height, px_buffer pixels, int mode)
         : width(width)
         , height(height)
@@ -67,14 +71,11 @@ public:
     Message LSBM_recover(int payload) const;
 
     // Jsteg
-    std::vector<int> compute_dct() const;
-    static Image compute_idct(const std::vector<int> &dct, int width,
-                              int height, int mode);
-    Image Jsteg(const Message &msg) const;
+    JstegImage Jsteg(const Message &msg) const;
+    dct_coefs compute_dct() const;
 
 private:
     int compute_dct_coef(int x, int y) const;
-    px compute_idct_px(const std::vector<int> &dct, int x, int y);
 
 public:
     int width;

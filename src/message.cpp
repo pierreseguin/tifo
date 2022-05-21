@@ -20,7 +20,7 @@ Message::Message(int payload, byte value)
 {
     *this = Message(payload);
     for (byte &b : content)
-        b = 0;
+        b = value;
 }
 
 void Message::save(const std::string &filename)
