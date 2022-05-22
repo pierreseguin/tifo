@@ -10,13 +10,13 @@ JstegImage::JstegImage(const std::string &filename, int mode)
     getline(input, header);
     height = std::stoi(header);
     this->mode = mode;
-
-    int coef;
-    dct = dct_coefs();
-    while (input >> coef)
-        dct.push_back(coef);
-    pixels = compute_idct();
     size = width * height * 3;
+
+    std::string coef;
+    dct = dct_coefs();
+    while (std::getline(input, coef))
+        dct.push_back(std::stoi(coef));
+    pixels = compute_idct();
 
     if (mode == GRAYSCALE)
     {
@@ -41,12 +41,12 @@ void JstegImage::save_as_jsteg(const std::string &filename)
     if (mode == COLOR_RGB)
     {
         for (int i = 0; i < size; i++)
-            output << dct[i];
+            output << dct[i] << "\n";
     }
     else
     {
         for (int i = 0; i < size; i++)
-            output << dct[i] << dct[i] << dct[i];
+            output << dct[i] << "\n" << dct[i] << "\n" << dct[i] << "\n";
     }
 
     output.close();

@@ -9,6 +9,8 @@ sources_stegano = files(
   'message.cpp',
   'stegano.cpp',
   'utils.cpp',
+  'jsteg_image.cpp',
+  'jsteg.cpp'
   )
 
 lsbr = files(
@@ -19,6 +21,10 @@ lsbm = files(
   'lsbm.cpp',
   )
 
-jsteg = files(
+jsteg_main = files(
   'jsteg_main.cpp',
+  )
+
+reader = files(
+  'reader.cpp',
   )
