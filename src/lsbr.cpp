@@ -4,7 +4,7 @@
 void test_LSBR(const Image &media, const Message &msg, char *recover_name)
 {
     std::cout << "LSB Replacement testing:" << std::endl;
-    int n_bits = 1;
+    int n_bits = 4;
     Image hidden = media.LSBR(msg, n_bits);
     hidden.save("hidden.png");
     Message recovered = hidden.LSBR_recover(n_bits, msg.payload);

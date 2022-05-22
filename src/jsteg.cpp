@@ -84,9 +84,15 @@ px_buffer JstegImage::compute_idct() const
     return pixels;
 }
 
-JstegImage Image::Jsteg(const Message &msg) const
+JstegImage Image::Jsteg_LSBR(const Message &msg) const
 {
     dct_coefs dct = compute_dct();
+    dct_coefs hidden_dct = ::LSBR(dct, msg, 1);
+    return JstegImage(*this, hidden_dct);
+}
+
+JstegImage JstegImage::Jsteg_LSBR(const Message &msg) const
+{
     dct_coefs hidden_dct = ::LSBR(dct, msg, 1);
     return JstegImage(*this, hidden_dct);
 }
@@ -94,4 +100,37 @@ JstegImage Image::Jsteg(const Message &msg) const
 Message JstegImage::Jsteg_recover(int payload) const
 {
     return ::LSBR_recover(dct, 1, payload);
+}
+
+JstegImage Image::Jsteg_LSBM(const Message &msg) const
+{
+    dct_coefs dct = compute_dct();
+    dct_coefs hidden_dct = ::LSBM(dct, msg);
+    return JstegImage(*this, hidden_dct);
+}
+
+JstegImage JstegImage::Jsteg_LSBM(const Message &msg) const
+{
+    dct_coefs hidden_dct = ::LSBM(dct, msg);
+    return JstegImage(*this, hidden_dct);
+}
+
+bool JstegImage::dct_chi_test(int payload) const
+{
+    int nb_zeros = 0, nb_ones = 0;
+    for (int i = 0; i < payload; i++)
+    {
+        nb_zeros += dct[i] == 0;
+        nb_ones += dct[i] == 1;
+    }
+
+    float nb_expected = (nb_zeros + nb_ones) / 2.0;
+    if (nb_expected <= 0)
+        return true;
+
+    float dev = std::pow(nb_zeros - nb_expected, 2);
+    float chi_squared = dev / nb_expected;
+    chi_squared = (chi_squared * 2) / payload;
+
+    return chi_squared < 0.15;
 }

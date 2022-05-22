@@ -30,6 +30,8 @@ std::vector<T> LSBR(const std::vector<T> &media, const Message &msg, int n_bits)
     }
     return hidden;
 }
+template px_buffer LSBR<px>(const px_buffer &, const Message &, int);
+template dct_coefs LSBR<int>(const dct_coefs &, const Message &, int);
 
 template <typename T>
 Message LSBR_recover(const std::vector<T> &hidden, int n_bits, int payload)
@@ -55,15 +57,37 @@ Message LSBR_recover(const std::vector<T> &hidden, int n_bits, int payload)
     }
     return msg;
 }
+template Message LSBR_recover(const px_buffer &hidden, int n_bits, int payload);
+template Message LSBR_recover(const dct_coefs &hidden, int n_bits, int payload);
 
-template px_buffer LSBR<px>(const px_buffer &, const Message &, int);
-template std::vector<int> LSBR<int>(const std::vector<int> &, const Message &,
-                                    int);
+template <typename T>
+std::vector<T> LSBM(const std::vector<T> &media, const Message &msg)
+{
+    if (media.size() < (msg.payload * 8))
+        throw std::invalid_argument("Message is too large for the media");
 
-template Message LSBR_recover(const std::vector<px> &hidden, int n_bits,
-                              int payload);
-template Message LSBR_recover(const std::vector<int> &hidden, int n_bits,
-                              int payload);
+    srand(time(NULL));
+    std::vector<T> hidden = media;
+    T lsb_mask = 0b1;
+    for (int bit = 0; bit < msg.payload * 8; bit++)
+    {
+        int msg_pos = bit / 8, remaining = 7 - bit % 8;
+        int msg_bit = (msg[msg_pos] >> remaining) & lsb_mask;
+
+        if (msg_bit != (hidden[bit] & lsb_mask))
+        {
+            if (hidden[bit] == std::numeric_limits<T>::max())
+                hidden[bit] -= 1;
+            else if (hidden[bit] == std::numeric_limits<T>::min())
+                hidden[bit] += 1;
+            else
+                hidden[bit] += ((rand() % 2) * 2) - 1;
+        }
+    }
+    return hidden;
+}
+template px_buffer LSBM<px>(const px_buffer &, const Message &);
+template dct_coefs LSBM<int>(const dct_coefs &, const Message &);
 
 Image Image::LSBR(const Message &msg, int n_bits) const
 {
@@ -85,41 +109,28 @@ bool Image::chi_test(int n_bits, int payload) const
     for (int i = 0; i < payload / n_bits; i++)
         hist[pixels[i]]++;
 
-    for (int color = 0; color < 256; color += 2)
+    int range_size = 1 << n_bits;
+    for (int color = 0; color < 256; color++)
     {
-        float nb_expected = (hist[color] + hist[color + 1]) / 2.0;
-        if (nb_expected > 0)
-            chi_squared += std::pow(hist[color] - nb_expected, 2) / nb_expected;
+        for (int bit = 0; bit < n_bits; bit++)
+        {
+            int bit_mask = 1 << bit;
+            int complementary =
+                (~(color & bit_mask) & bit_mask) | (color & ~bit_mask);
+            float nb_exp = (hist[color] + hist[complementary]) / 2.;
+            if (nb_exp > 0)
+                chi_squared += std::pow(hist[color] - nb_exp, 2) / nb_exp;
+        }
     }
 
-    chi_squared = (chi_squared * 2 * n_bits) / payload;
+    chi_squared = chi_squared / payload;
     return chi_squared < 0.15;
 }
 
 Image Image::LSBM(const Message &msg) const
 {
-    if (size < (msg.payload * 8))
-        throw std::invalid_argument("Message is too large for the media");
-
-    srand(time(NULL));
-    Image hidden = Image(*this);
-    int lsb_mask = 0b00000001;
-    for (int bit = 0; bit < msg.payload * 8; bit++)
-    {
-        int msg_pos = bit / 8, remaining = 7 - bit % 8;
-        int msg_bit = (msg[msg_pos] >> remaining) & lsb_mask;
-
-        if (msg_bit != (hidden[bit] & lsb_mask))
-        {
-            if (hidden[bit] == 255)
-                hidden[bit] -= 1;
-            else if (hidden[bit] == 0)
-                hidden[bit] += 1;
-            else
-                hidden[bit] += ((rand() % 2) * 2) - 1;
-        }
-    }
-    return hidden;
+    px_buffer hidden_px = ::LSBM<px>(pixels, msg);
+    return Image(width, height, hidden_px, mode);
 }
 
 Message Image::LSBM_recover(int payload) const

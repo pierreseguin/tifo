@@ -21,8 +21,12 @@ lsbm = files(
   'lsbm.cpp',
   )
 
-jsteg_main = files(
-  'jsteg_main.cpp',
+jsteg_lsbr = files(
+  'jsteg_lsbr.cpp',
+  )
+
+jsteg_lsbm = files(
+  'jsteg_lsbm.cpp',
   )
 
 reader = files(

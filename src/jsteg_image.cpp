@@ -1,4 +1,10 @@
-#include "../includes/jsteg_image.hh"
+#include "jsteg_image.hh"
+
+JstegImage::JstegImage(const Image &img)
+{
+    dct_coefs img_dct = img.compute_dct();
+    *this = JstegImage(img, img_dct);
+}
 
 JstegImage::JstegImage(const std::string &filename, int mode)
 {

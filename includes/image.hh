@@ -71,7 +71,8 @@ public:
     Message LSBM_recover(int payload) const;
 
     // Jsteg
-    JstegImage Jsteg(const Message &msg) const;
+    JstegImage Jsteg_LSBR(const Message &msg) const;
+    JstegImage Jsteg_LSBM(const Message &msg) const;
     dct_coefs compute_dct() const;
 
 private:

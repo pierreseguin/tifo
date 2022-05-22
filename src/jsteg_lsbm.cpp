@@ -5,17 +5,26 @@ void test_Jsteg(const Image &media, const Message &msg, char *recover_name)
 {
     std::cout << "Jsteg testing:" << std::endl;
 
-    JstegImage hidden = media.Jsteg(msg);
-    hidden.save("hidden.png");
+    JstegImage jsteg_media = JstegImage(media);
+    JstegImage hidden = jsteg_media.Jsteg_LSBM(msg);
     hidden.save_as_jsteg("hidden.jsteg");
     Message recovered = hidden.Jsteg_recover(msg.payload);
     recovered.save(recover_name);
 
+    std::cout << "\tChi attack on pixels:" << std::endl;
     bool media_res = media.chi_test(1, msg.payload);
-    std::cout << "\tMedia is stegano ? " << (media_res ? "yes" : "no")
+    std::cout << "\t\tMedia is stegano ? " << (media_res ? "yes" : "no")
               << std::endl;
     bool hidden_res = hidden.chi_test(1, msg.payload);
-    std::cout << "\tHidden is stegano ? " << (hidden_res ? "yes" : "no")
+    std::cout << "\t\tHidden is stegano ? " << (hidden_res ? "yes" : "no")
+              << std::endl;
+
+    std::cout << "\tChi attack on low dct coefs:" << std::endl;
+    media_res = jsteg_media.dct_chi_test(msg.payload);
+    std::cout << "\t\tMedia is stegano ? " << (media_res ? "yes" : "no")
+              << std::endl;
+    hidden_res = hidden.dct_chi_test(msg.payload);
+    std::cout << "\t\tHidden is stegano ? " << (hidden_res ? "yes" : "no")
               << std::endl;
 
     hidden.save("jsteg_lsbs.png", 1);

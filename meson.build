@@ -10,5 +10,6 @@ stb = static_library('stb', sources: sources_stb, include_directories: includes)
 
 executable('lsbr', sources: sources_stegano + lsbr, link_with: stb, include_directories: includes)
 executable('lsbm', sources: sources_stegano + lsbm, link_with: stb, include_directories: includes)
-executable('jsteg', sources: sources_stegano + jsteg_main, link_with: stb, include_directories: includes)
+executable('jsteg_lsbr', sources: sources_stegano + jsteg_lsbr, link_with: stb, include_directories: includes)
+executable('jsteg_lsbm', sources: sources_stegano + jsteg_lsbm, link_with: stb, include_directories: includes)
 executable('reader', dependencies: opencvdep, sources: sources_stegano + reader, link_with: stb, include_directories: includes)
