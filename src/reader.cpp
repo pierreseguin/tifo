@@ -23,8 +23,11 @@ int main(int argc, char *argv[])
     else
         img = cv::imread(img_name, cv::IMREAD_COLOR);
 
-    cv::namedWindow(img_name, cv::WINDOW_GUI_NORMAL | cv::WINDOW_AUTOSIZE);
+    // cv::namedWindow(img_name, cv::WINDOW_GUI_NORMAL | cv::WINDOW_AUTOSIZE);
+    cv::namedWindow(img_name, cv::WINDOW_NORMAL);
     cv::moveWindow(img_name, 0, 0);
+    cv::setWindowProperty(img_name, cv::WND_PROP_FULLSCREEN,
+                          cv::WINDOW_FULLSCREEN);
     cv::imshow(img_name, img);
     cv::waitKey(0);
 
