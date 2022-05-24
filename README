@@ -1,0 +1,12 @@
+Projet de tifo - Stéganographie
+
+Antoine Delattre, Pierre Seguin
+
+Dépendence: Opencv (utilisé uniquement pour le binaire "reader" qui sert à afficher une image)
+
+Pour compiler faites:
+    meson setup --buildtype=release build
+    meson compile -C build
+
+Une fois la compilation terminée, il y'a 5 binaires dans le dossier "build":
+    build/lsbr MEDIA MSG 
